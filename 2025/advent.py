@@ -173,6 +173,36 @@ class Day:
             total_removed += len(to_remove)
 
         return total_removed
+    
+    def dayFiveP1(self):
+        sections = self.data.split("\n\n")
+        ranges = [tuple(map(int, r.split("-"))) for r in sections[0].splitlines()]
+        ingredients = [int(num) for num in sections[1].splitlines()]
+        total_fresh = 0
+
+        for num in ingredients:
+            for r in ranges:
+                if num in range(r[0], r[1] + 1):
+                    total_fresh += 1
+                    break
+        return total_fresh
+        
+    def dayFiveP2(self):
+        sections = self.data.split("\n\n")
+        ranges = [tuple(map(int, r.split("-"))) for r in sections[0].splitlines()]
+        ranges.sort()
+        merged = []
+    
+        curr_start, curr_end = ranges[0]
+        for start, end in ranges[1:]:
+            if start <= curr_end + 1:
+                curr_end = max(curr_end, end)
+            else:
+                merged.append((curr_start, curr_end))
+                curr_start, curr_end = start, end
+        
+        merged.append((curr_start, curr_end))
+        return sum((end - start + 1) for start, end in merged)
 
 if __name__ == "__main__":
     load_dotenv()
@@ -193,3 +223,7 @@ if __name__ == "__main__":
     dayFour = Day("https://adventofcode.com/2025/day/4/input")
     print("\nDay-4-P1:", dayFour.dayFourP1())
     print("Day-4-P2:", dayFour.dayFourP2())
+
+    dayFive = Day("https://adventofcode.com/2025/day/5/input")
+    print("\nDay-5-P1:", dayFive.dayFiveP1())
+    print("Day-5-P2:", dayFive.dayFiveP2())
