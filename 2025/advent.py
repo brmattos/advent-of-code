@@ -277,6 +277,78 @@ class Day:
             beams = new_beams
         return sum(beams)
 
+    def dayEightP1(self):
+        boxes = [tuple(map(int, line.split(","))) for line in self.data.splitlines()]
+        parent = list(range(len(boxes)))
+
+        def find(x):
+            if parent[x] != x: parent[x] = find(parent[x])
+            return parent[x]
+
+        def union(x, y):
+            px, py = find(x), find(y)
+            if px != py: parent[px] = py
+        
+        # compute all pairwise distances
+        edges = []
+        for (i, a), (j, b) in combinations(enumerate(boxes), 2):
+            dist = sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2)
+            edges.append((dist, i, j))
+        
+        edges.sort(key=lambda x: x[0])  # sort edges by distance
+        for _, i, j in edges[:1000]: union (i, j)  # connect the 1000 closest pairs
+
+        # count sizes of connected components
+        sizes = Counter(find(i) for i in range(len(boxes)))
+        largest_three = sorted(sizes.values(), reverse=True)[:3]
+
+        result = 1
+        for size in largest_three: result *= size
+        return result
+
+    def dayEightP2(self):
+        boxes = [tuple(map(int, line.split(","))) for line in self.data.splitlines()]
+        n = len(boxes)
+        parent = list(range(n))
+        rank = [0] * n
+
+        def find(x):
+            if parent[x] != x: parent[x] = find(parent[x])
+            return parent[x]
+
+        def union(x, y):
+            px, py = find(x), find(y)
+            if px == py:
+                return False
+            if rank[px] < rank[py]:
+                parent[px] = py
+            elif rank[px] > rank[py]:
+                parent[py] = px
+            else:
+                parent[py] = px
+                rank[px] += 1
+            return True
+        
+        # compute all pairwise distances
+        edges = []
+        for (i, a), (j, b) in combinations(enumerate(boxes), 2):
+            dist = (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2
+            edges.append((dist, i, j))
+        
+        edges.sort(key=lambda x: x[0])  # sort edges by distance
+
+        components = n
+        last_pair = None
+        for _, i, j in edges:
+            if union(i, j):
+                last_pair = (i, j)
+                components -= 1
+                if components == 1: break
+
+        # multiply the x coordinates of the last connected pair
+        x_product = boxes[last_pair[0]][0] * boxes[last_pair[1]][0]
+        return x_product
+
 if __name__ == "__main__":
     load_dotenv()
     cookies = { "session": os.getenv("SESSION") }
@@ -308,3 +380,7 @@ if __name__ == "__main__":
     daySeven = Day("https://adventofcode.com/2025/day/7/input")
     print("\nDay-7-P1:", daySeven.daySevenP1())
     print("Day-7-P2:", daySeven.daySevenP2())
+
+    dayEight = Day("https://adventofcode.com/2025/day/8/input")
+    print("\nDay-8-P1:", dayEight.dayEightP1())
+    print("Day-8-P2:", dayEight.dayEightP2())
