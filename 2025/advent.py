@@ -49,6 +49,41 @@ class Day:
 
         return zeros
 
+    def dayTwoP1(self):
+        product_ids = self.data.split(",")
+        invalid_sum = 0
+
+        for id_range in product_ids:
+            first, second = id_range.split("-")
+            for num in range(int(first), int(second) + 1):
+                s = str(num)
+                if len(s) % 2 == 0:
+                    half = len(s) // 2
+                    if s[:half] == s[half:]:
+                        invalid_sum += num
+        return invalid_sum
+    
+    def dayTwoP2(self):
+        product_ids = self.data.split(",")
+        invalid_sum = 0
+
+        for id_range in product_ids:
+            first, second = id_range.split("-")
+            for num in range(int(first), int(second) + 1):
+                s = str(num)
+
+                # try every substring length
+                for k in range(1, len(s) // 2 + 1):
+                    if len(s) % k != 0:
+                        continue  # uneven division
+                    
+                    repeats = len(s) // k
+                    if repeats >= 2:
+                        if s == s[:k] * repeats:
+                            invalid_sum += num
+                            break
+        return invalid_sum
+
 if __name__ == "__main__":
     load_dotenv()
     cookies = { "session": os.getenv("SESSION") }
