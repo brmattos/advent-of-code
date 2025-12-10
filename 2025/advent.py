@@ -1,9 +1,9 @@
+import os
 import requests
 from math import sqrt
 from itertools import combinations
-from collections import Counter, deque
+from collections import Counter
 from dotenv import load_dotenv
-import os
 
 class Day:
     def __init__(self, url):
@@ -349,6 +349,38 @@ class Day:
         x_product = boxes[last_pair[0]][0] * boxes[last_pair[1]][0]
         return x_product
 
+    def dayNineP1(self):
+        tiles = [tuple(int(n) for n in line.split(',')) for line in self.data.splitlines()]
+        max_area = 0
+        for x1, y1 in tiles:
+            for x2, y2 in tiles:
+                area = abs(x1 - x2 + 1) * abs(y1 - y2 + 1)
+                max_area = max(max_area, area)
+        return max_area
+
+    def dayNineP2(self):
+        tiles = [[int(n) for n in line.split(',')] for line in self.data.splitlines()]
+        tiles.append(tiles[0])
+        verticals = sorted([(tiles[i][0], min(tiles[i][1], tiles[i + 1][1]), max(tiles[i][1], tiles[i + 1][1])) for i in range(len(tiles) - 1) if tiles[i][0] == tiles[i + 1][0]], key=lambda x: x[0])
+        horizontals = sorted([(tiles[i][1], min(tiles[i][0], tiles[i + 1][0]), max(tiles[i][0], tiles[i + 1][0])) for i in range(len(tiles) - 1) if tiles[i][1] == tiles[i + 1][1]], key=lambda x: x[0])
+        outside_verticals = [(vertical[0] + (1 if sum([1 for v in verticals[i + 1:] if v[1] <= (vertical[1] + vertical[2]) // 2 < v[2]]) % 2 == 0 else -1), vertical[1] + 1, vertical[2] - 1) for i, vertical in enumerate(verticals)]
+        outside_horizontals = [(horizontal[0] + (1 if sum([1 for v in horizontals[i + 1:] if v[1] <= (horizontal[1] + horizontal[2]) // 2 < v[2]]) % 2 == 0 else -1), horizontal[1] + 1, horizontal[2] - 1) for i, horizontal in enumerate(horizontals)]
+        max_area = 0
+        for i, tile1 in enumerate(tiles):
+            for tile2 in tiles[i + 1:]:
+                area = (abs(tile1[0] - tile2[0]) + 1) * (abs(tile1[1] - tile2[1]) + 1)
+                if area > max_area:
+                    for vertical in outside_verticals:
+                        if min(tile1[0], tile2[0]) <= vertical[0] <= max(tile1[0], tile2[0]) and min(tile1[1], tile2[1]) <= vertical[2] and vertical[1] <= max(tile1[1], tile2[1]):
+                            break
+                    else:
+                        for horizontal in outside_horizontals:
+                            if min(tile1[1], tile2[1]) <= horizontal[0] <= max(tile1[1], tile2[1]) and min(tile1[0], tile2[0]) <= horizontal[2] and horizontal[1] <= max(tile1[0], tile2[0]):
+                                break
+                        else:
+                            max_area = area
+        return max_area
+
 if __name__ == "__main__":
     load_dotenv()
     cookies = { "session": os.getenv("SESSION") }
@@ -384,3 +416,7 @@ if __name__ == "__main__":
     dayEight = Day("https://adventofcode.com/2025/day/8/input")
     print("\nDay-8-P1:", dayEight.dayEightP1())
     print("Day-8-P2:", dayEight.dayEightP2())
+
+    dayNine = Day("https://adventofcode.com/2025/day/9/input")
+    print("\nDay-9-P1:", dayNine.dayNineP1())
+    print("Day-9-P2:", dayNine.dayNineP2())
