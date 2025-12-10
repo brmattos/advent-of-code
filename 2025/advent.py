@@ -204,6 +204,36 @@ class Day:
         merged.append((curr_start, curr_end))
         return sum((end - start + 1) for start, end in merged)
 
+    def daySixP1(self):
+        lines = [line.split() for line in self.data.splitlines()]
+        numbers = lines[:-1]
+        operators = lines[-1]
+        grand_total = 0
+
+        for i in range(len(numbers[0])):
+            op = operators[i]
+            if op == "+":
+                total = 0
+                for r in range(len(numbers)):
+                    total += int(numbers[r][i])
+                grand_total += total
+            else:
+                total = 1
+                for r in range(len(numbers)):
+                    total *= int(numbers[r][i])
+                grand_total += total
+        return grand_total
+
+    def daySixP2(self):
+        table = [list(line.strip('\n'))[::-1] for line in self.data.splitlines()]
+        oper = ''.join(table[-1]).split()
+        table = [''.join(t).strip() for t in zip(*table[:-1])] # transpose
+        table = [s.split('|') for s in '|'.join(table).split('||')]
+        res = 0
+        for i in range(len(table)):
+            res += eval(oper[i].join(table[i]))
+        return res
+
 if __name__ == "__main__":
     load_dotenv()
     cookies = { "session": os.getenv("SESSION") }
@@ -227,3 +257,7 @@ if __name__ == "__main__":
     dayFive = Day("https://adventofcode.com/2025/day/5/input")
     print("\nDay-5-P1:", dayFive.dayFiveP1())
     print("Day-5-P2:", dayFive.dayFiveP2())
+
+    daySix = Day("https://adventofcode.com/2025/day/6/input")
+    print("\nDay-6-P1:", daySix.daySixP1())
+    print("Day-6-P2:", daySix.daySixP2())
