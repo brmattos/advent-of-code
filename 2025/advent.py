@@ -84,6 +84,44 @@ class Day:
                             break
         return invalid_sum
 
+    def dayThreeP1(self):
+        banks = self.data.splitlines()
+        total_joltage = 0
+
+        for bank in banks:
+            battery1 = 0
+            ending_idx = 0
+            for i, digit in enumerate(bank[:-1]):
+                if int(digit) > battery1:
+                    battery1 = int(digit)
+                    ending_idx = i
+            
+            battery2 = 0
+            for digit in bank[ending_idx+1:]:
+                battery2 = max(battery2, int(digit))
+            
+            total_joltage += int(str(battery1) + str(battery2))
+        
+        return total_joltage
+
+    def dayThreeP2(self):
+        banks = self.data.splitlines()
+        total_joltage = 0
+
+        for bank in banks:
+            k = 12
+            remove = len(bank) - k
+            stack = []
+
+            for digit in bank:
+                while remove and stack and stack[-1] < digit:
+                    stack.pop()
+                    remove -= 1
+                stack.append(digit)
+
+            total_joltage += int("".join(stack[:k]))
+        return total_joltage
+
 if __name__ == "__main__":
     load_dotenv()
     cookies = { "session": os.getenv("SESSION") }
@@ -91,3 +129,11 @@ if __name__ == "__main__":
     dayOne = Day("https://adventofcode.com/2025/day/1/input");
     print("Day-1-P1:", dayOne.dayOneP1())
     print("Day-1-P2:", dayOne.dayOneP2())
+
+    dayTwo = Day("https://adventofcode.com/2025/day/2/input")
+    print("\nDay-2-P1:", dayTwo.dayTwoP1())
+    print("Day-2-P2:", dayTwo.dayTwoP2())
+
+    dayThree = Day("https://adventofcode.com/2025/day/3/input")
+    print("\nDay-3-P1:", dayThree.dayThreeP1())
+    print("Day-3-P2:", dayThree.dayThreeP2())
