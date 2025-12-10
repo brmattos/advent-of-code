@@ -234,6 +234,49 @@ class Day:
             res += eval(oper[i].join(table[i]))
         return res
 
+    def daySevenP1(self):
+        diagram = [list(line) for line in self.data.splitlines()]
+        split_count = 0
+
+        for row in range(len(diagram)):
+            for col in range(len(diagram[0])):
+                if diagram[row][col] == "^" and diagram[row - 1][col] == "|":
+                    # split
+                    diagram[row][col - 1] = diagram[row][col + 1] = "|"
+                    split_count += 1
+                elif row and (diagram[row - 1][col] == "S" or diagram[row - 1][col] == "|"):
+                    # beam start or continue
+                    diagram[row][col] = "|"
+        return split_count
+
+    def daySevenP2(self):
+        diagram = [list(line) for line in self.data.splitlines()]
+        R, C = len(diagram), len(diagram[0])
+
+        # Find starting position
+        start = None
+        for c in range(len(diagram[0])):
+            if diagram[0][c] == "S":
+                start = c
+
+        beams = [0] * len(diagram[0])
+        beams[start] = 1
+
+        for r in range(1, R):
+            row = diagram[r]
+            new_beams = [0] * C
+            for c in range(C):
+                if beams[c] > 0:
+                    if row[c] == "^":
+                        # beam splits
+                        if c - 1 >= 0: new_beams[c - 1] += beams[c]
+                        if c + 1 < C: new_beams[c + 1] += beams[c]
+                    else:
+                        # beam continues straight
+                        new_beams[c] += beams[c]
+            beams = new_beams
+        return sum(beams)
+
 if __name__ == "__main__":
     load_dotenv()
     cookies = { "session": os.getenv("SESSION") }
@@ -261,3 +304,7 @@ if __name__ == "__main__":
     daySix = Day("https://adventofcode.com/2025/day/6/input")
     print("\nDay-6-P1:", daySix.daySixP1())
     print("Day-6-P2:", daySix.daySixP2())
+
+    daySeven = Day("https://adventofcode.com/2025/day/7/input")
+    print("\nDay-7-P1:", daySeven.daySevenP1())
+    print("Day-7-P2:", daySeven.daySevenP2())
