@@ -122,6 +122,58 @@ class Day:
             total_joltage += int("".join(stack[:k]))
         return total_joltage
 
+    def dayFourP1(self):
+        grid = [list(line) for line in self.data.splitlines()]
+        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+        rows = len(grid)
+        cols = len(grid[0])
+        total = 0
+
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] != '@':
+                    continue
+                    
+                count = 0
+                for dr, dc in directions:
+                    nr, nc = r + dr, c + dc
+                    if nr in range(rows) and nc in range(cols) and grid[nr][nc] == '@':
+                        count += 1
+            
+                if count < 4:
+                    total += 1
+        return total
+
+    def dayFourP2(self):
+        grid = [list(line) for line in self.data.splitlines()]
+        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+        rows = len(grid)
+        cols = len(grid[0])
+        total_removed = 0
+
+        while True:
+            to_remove = []
+
+            for r in range(rows):
+                for c in range(cols):
+                    if grid[r][c] != '@':
+                        continue
+                    count = 0
+
+                    for dr, dc in directions:
+                        nr, nc = r + dr, c + dc
+                        if nr in range(rows) and nc in range(cols) and grid[nr][nc] == '@':
+                            count += 1
+                    if count < 4:
+                        to_remove.append((r, c))
+                        grid[r][c] = '.'
+            
+            if not to_remove:
+                break
+            total_removed += len(to_remove)
+
+        return total_removed
+
 if __name__ == "__main__":
     load_dotenv()
     cookies = { "session": os.getenv("SESSION") }
@@ -137,3 +189,7 @@ if __name__ == "__main__":
     dayThree = Day("https://adventofcode.com/2025/day/3/input")
     print("\nDay-3-P1:", dayThree.dayThreeP1())
     print("Day-3-P2:", dayThree.dayThreeP2())
+
+    dayFour = Day("https://adventofcode.com/2025/day/4/input")
+    print("\nDay-4-P1:", dayFour.dayFourP1())
+    print("Day-4-P2:", dayFour.dayFourP2())
